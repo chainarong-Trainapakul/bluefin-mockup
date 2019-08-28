@@ -38,6 +38,17 @@ func TestDeploy(res http.ResponseWriter, req *http.Request){
 	fmt.Println("TestDeploy")
 }
 
+func TestDeploy2(res http.ResponseWriter, req *http.Request){
+	ID++
+	resp := Response{
+		ID : ID,
+		ResultCode: 200,
+		Description: "ok test deploy2",
+		}
+	json.NewEncoder(res).Encode(resp)
+	fmt.Println("TestDeploy")
+}
+
 func homePage(res http.ResponseWriter, req *http.Request){
 	fmt.Println("-------------------------------------------------------------------")
 	fmt.Fprintf(res, "endpint:")
@@ -68,6 +79,7 @@ func handleRequest() {
 	router.HandleFunc("/", homePage).Methods("GET")
 	router.HandleFunc("/WriteResponse", WriteResponse).Methods("GET")
 	router.HandleFunc("/testDeploy", TestDeploy).Methods("GET")
+	router.HandleFunc("/testDeploy2", TestDeploy2).Methods("GET")
 	fmt.Println("start")
 	port := os.Getenv("PORT")
 	if port == ""{

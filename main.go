@@ -2,6 +2,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"encoding/json"
 	"net/http"
 
@@ -56,7 +57,11 @@ func handleRequest() {
 	router.HandleFunc("/", homePage).Methods("GET")
 	router.HandleFunc("/WriteResponse", WriteResponse).Methods("GET")
 	fmt.Println("start")
-	log.Fatal(http.ListenAndServe(":8081", router))
+	port := os.Getenv("PORT")
+	if port == ""{
+		port = "8081"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
 func main(){

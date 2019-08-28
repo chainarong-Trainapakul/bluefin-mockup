@@ -34,6 +34,8 @@ func TestDeploy(res http.ResponseWriter, req *http.Request){
 		ResultCode: 200,
 		Description: "ok test deploy",
 		}
+	json.NewEncoder(res).Encode(resp)
+	fmt.Println("TestDeploy")
 }
 
 func homePage(res http.ResponseWriter, req *http.Request){

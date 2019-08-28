@@ -1,4 +1,4 @@
-module github.com/heroku/bulefin-mockup
+module chainarong-Trainapakul/bluefin-mockup
 
 go 1.12
 

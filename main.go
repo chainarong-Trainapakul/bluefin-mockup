@@ -74,8 +74,22 @@ func homePage(res http.ResponseWriter, req *http.Request){
 }
 
 func ListProcess(res http.ResponseWriter, req *http.Request){
-	fmt.Fprintf(res, "Listprocess")
-	json.NewEncoder(res).Encode(processListResponseSuccess)
+	//fmt.Fprintf("Listprocess")
+	//fmt.Fprintf(processListResponseSuccess)
+	//fmt.Println(processListResponseSuccess)
+	tmp := processListResponseSuccess
+	fmt.Println(tmp)
+	json.NewEncoder(res).Encode(tmp)
+}
+
+func testListProcess(res http.ResponseWriter, req *http.Request){
+	resp := Response{
+		ID : ID,
+		ResultCode: 200,
+		Description: "ok test deploy",
+		}
+	//json.NewEncoder(res).Encode(processListResponseSuccess)
+	json.NewEncoder(res).Encode(resp)
 }
 
 func handleRequest() {
@@ -86,6 +100,7 @@ func handleRequest() {
 	router.HandleFunc("/testDeploy", TestDeploy).Methods("GET")
 	router.HandleFunc("/testDeploy2", TestDeploy2).Methods("GET")
 	router.HandleFunc("/v1/api/processes", ListProcess).Methods("GET")
+	router.HandleFunc("/processes", testListProcess).Methods("GET")
 	fmt.Println("start")
 	port := os.Getenv("PORT")
 	if port == ""{
@@ -95,33 +110,33 @@ func handleRequest() {
 }
 
 type DataResponse struct {
-	id						string 			`json:"id"`
-	url						string 			`json:"url"`
-	businessKey				string 			`json:"businessKey"`
-	suspended				bool 			`json:"suspended"`
-	ended					bool 			`json:"ended"`
-	processDefinitionId		string			`json:"processDefinitionId"`
-	processDefinitionUrl	string			`json:"processDefinitionUrl"`
-	processDefinitionKey	string			`json:"processDefinitionKey"`
-	activityId				string			`json:"activityId"`
+	ID						string 			`json:"id"`
+	Url						string 			`json:"url"`
+	BusinessKey				string 			`json:"businessKey"`
+	Suspended				bool 			`json:"suspended"`
+	Ended					bool 			`json:"ended"`
+	ProcessDefinitionId		string			`json:"processDefinitionId"`
+	ProcessDefinitionUrl	string			`json:"processDefinitionUrl"`
+	ProcessDefinitionKey	string			`json:"processDefinitionKey"`
+	ActivityId				string			`json:"activityId"`
 	//variables must be object
-	variables				string 			`json:"variables"`
-	tenantId				string			`json:"tenantId"`
-	name					string			`json:"name"`
-	activeActivity			[]string		`json:"activeActivity"`
-	completed				string			`json:"completed"`
+	Variables				string 			`json:"variables"`
+	TenantId				string			`json:"tenantId"`
+	Name					string			`json:"name"`
+	ActiveActivity			[]string		`json:"activeActivity"`
+	Completed				string			`json:"completed"`
 }
 
 type ProcessResponse struct {
-	resultCode			string			`json:"resultCode"`
-	resultDescription	string			`json:"resultDescription"`
-	developMessage		string			`json:"delelopMessage"`
-	data				DataResponse	`json:"data"`
-	start				int				`json:"start"`
-	size				int				`json:"size"`
-	sort				string			`json:"sort"`
-	order				string			`json:"order"`
-	total				int				`json:"total"`
+	ResultCode			string			`json:"resultCode"`
+	ResultDescription	string			`json:"resultDescription"`
+	DevelopMessage		string			`json:"delelopMessage"`
+	Data				DataResponse	`json:"data"`
+	Start				int				`json:"start"`
+	Size				int				`json:"size"`
+	Sort				string			`json:"sort"`
+	Order				string			`json:"order"`
+	Total				int				`json:"total"`
 }
 
 func V1ApiProcesses(res http.ResponseWriter, req *http.Request) {
@@ -135,35 +150,35 @@ func main(){
 
 var (
 	testData = DataResponse{
-		id:						"2501",
-		url:					"null",
-		businessKey:			"null",
-		suspended:				false,
-		ended:					false,
-		processDefinitionId: 	"sampleProcess:1:4",
-		processDefinitionUrl: 	"null",
-		processDefinitionKey: 	"sampleProcess",
-		activityId:				"null",
-		variables:				"null object",
-		tenantId:				"",
-		name:					"null",
-		completed:				"false",
+		ID:						"2501",
+		Url:					"null",
+		BusinessKey:			"null",
+		Suspended:				false,
+		Ended:					false,
+		ProcessDefinitionId: 	"sampleProcess:1:4",
+		ProcessDefinitionUrl: 	"null",
+		ProcessDefinitionKey: 	"sampleProcess",
+		ActivityId:				"null",
+		Variables:				"null object",
+		TenantId:				"",
+		Name:					"null",
+		Completed:				"false",
 	}
 
 	processListResponseSuccess = ProcessResponse{
-		resultCode: 			"20000",
-		resultDescription:		"success",
-		data:					testData,
-		start:					0,
-		size:					1,
-		sort:					"id",
-		order:					"asc",
-		total:					1,
+		ResultCode: 			"20000",
+		ResultDescription:		"success",
+		Data:					testData,
+		Start:					0,
+		Size:					1,
+		Sort:					"id",
+		Order:					"asc",
+		Total:					1,
 	}
 
 	processListResponseError = ProcessResponse{
-		resultCode:				"50000",
-		resultDescription:		"System error",
-		data:					DataResponse{},
+		ResultCode:				"50000",
+		ResultDescription:		"System error",
+		Data:					DataResponse{},
 	}
 )

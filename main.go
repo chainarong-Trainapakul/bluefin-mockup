@@ -73,6 +73,10 @@ func homePage(res http.ResponseWriter, req *http.Request){
 	fmt.Println("Cancel    :", req.Cancel)
 }
 
+func ListProcess(res http.ResponseWriter, req *http.Request){
+	json.NewEncoder(res).Encode(processListResponseSuccess)
+}
+
 func handleRequest() {
 	router := mux.NewRouter()
 
@@ -80,6 +84,7 @@ func handleRequest() {
 	router.HandleFunc("/WriteResponse", WriteResponse).Methods("GET")
 	router.HandleFunc("/testDeploy", TestDeploy).Methods("GET")
 	router.HandleFunc("/testDeploy2", TestDeploy2).Methods("GET")
+	router.HandleFunc("/v1/api/processes", ListProcess).Methods("GET")
 	fmt.Println("start")
 	port := os.Getenv("PORT")
 	if port == ""{
@@ -88,7 +93,78 @@ func handleRequest() {
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
+type DataResponse struct {
+	id						uint64 			`json:"id"`
+	url						string 			`json:"url"`
+	businessKey				string 			`json:"businessKey"`
+	suspended				bool 			`json:"suspended"`
+	ended					bool 			`json:"ended"`
+	processDefinitionId		string			`json:"processDefinitionId"`
+	processDefinitionUrl	string			`json:"processDefinitionUrl"`
+	processDefinitionKey	string			`json:"processDefinitionKey"`
+	activityId				string			`json:"activityId"`
+	//variables must be object
+	variables				string 			`json:"variables"`
+	tenantId				string			`json:"tenantId"`
+	name					string			`json:"name"`
+	activeActivity			[]string		`json:"activeActivity"`
+	completed				string			`json:"completed"`
+}
+
+type ProcessResponse struct {
+	resultCode			string			`json:"resultCode"`
+	resultDescription	string			`json:"resultDescription"`
+	developMessage		string			`json:"delelopMessage"`
+	data				DataResponse	`json:"data"`
+	start				int				`json:"start"`
+	size				int				`json:"size"`
+	sort				string			`json:"sort"`
+	order				string			`json:"order"`
+	total				int				`json:"total"`
+}
+
+func V1ApiProcesses(res http.ResponseWriter, req *http.Request) {
+	data := DataResponse {
+		id : id,
+		
+	}
+}
+
 func main(){
 	// handle http request
 	handleRequest()
 }
+
+testData := DataResponse{
+	id:						"2501",
+	url:					null,
+	businessKey:			null,
+	suspended:				false,
+	ended:					false,
+	processDefinitionId: 	"sampleProcess:1:4",
+	processDefinitionUrl: 	null,
+	processDefinitionKey: 	"sampleProcess",
+	activityId:				null,
+	variables:				"null object"
+	tenantId:				"",
+	name:					null,
+	completed:				false,
+}
+
+processListResponseSuccess := ProcessResponse{
+	resultCode: 			"20000",
+	resultDescription:		"success",
+	data:					testData,
+	start:					0,
+	size:					1,
+	sort:					"id",
+	order:					"asc",
+	total:					"1",
+}
+
+processListResponseError := ProcessResponse{
+	resultCode:				"50000",
+	resultDescription:		"System error",
+	data:					DataResponse{},
+}
+

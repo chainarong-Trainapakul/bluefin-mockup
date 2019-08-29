@@ -94,7 +94,7 @@ func handleRequest() {
 }
 
 type DataResponse struct {
-	id						uint64 			`json:"id"`
+	id						string 			`json:"id"`
 	url						string 			`json:"url"`
 	businessKey				string 			`json:"businessKey"`
 	suspended				bool 			`json:"suspended"`
@@ -124,10 +124,7 @@ type ProcessResponse struct {
 }
 
 func V1ApiProcesses(res http.ResponseWriter, req *http.Request) {
-	data := DataResponse {
-		id : id,
-		
-	}
+	
 }
 
 func main(){
@@ -135,36 +132,37 @@ func main(){
 	handleRequest()
 }
 
-testData := DataResponse{
-	id:						"2501",
-	url:					null,
-	businessKey:			null,
-	suspended:				false,
-	ended:					false,
-	processDefinitionId: 	"sampleProcess:1:4",
-	processDefinitionUrl: 	null,
-	processDefinitionKey: 	"sampleProcess",
-	activityId:				null,
-	variables:				"null object"
-	tenantId:				"",
-	name:					null,
-	completed:				false,
-}
+var (
+	testData = DataResponse{
+		id:						"2501",
+		url:					"null",
+		businessKey:			"null",
+		suspended:				false,
+		ended:					false,
+		processDefinitionId: 	"sampleProcess:1:4",
+		processDefinitionUrl: 	"null",
+		processDefinitionKey: 	"sampleProcess",
+		activityId:				"null",
+		variables:				"null object",
+		tenantId:				"",
+		name:					"null",
+		completed:				"false",
+	}
 
-processListResponseSuccess := ProcessResponse{
-	resultCode: 			"20000",
-	resultDescription:		"success",
-	data:					testData,
-	start:					0,
-	size:					1,
-	sort:					"id",
-	order:					"asc",
-	total:					"1",
-}
+	processListResponseSuccess = ProcessResponse{
+		resultCode: 			"20000",
+		resultDescription:		"success",
+		data:					testData,
+		start:					0,
+		size:					1,
+		sort:					"id",
+		order:					"asc",
+		total:					1,
+	}
 
-processListResponseError := ProcessResponse{
-	resultCode:				"50000",
-	resultDescription:		"System error",
-	data:					DataResponse{},
-}
-
+	processListResponseError = ProcessResponse{
+		resultCode:				"50000",
+		resultDescription:		"System error",
+		data:					DataResponse{},
+	}
+)

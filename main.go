@@ -74,6 +74,7 @@ func homePage(res http.ResponseWriter, req *http.Request){
 }
 
 func ListProcess(res http.ResponseWriter, req *http.Request){
+	fmt.Fprintf(res, "Listprocess")
 	json.NewEncoder(res).Encode(processListResponseSuccess)
 }
 

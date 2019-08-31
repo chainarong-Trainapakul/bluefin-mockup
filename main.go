@@ -1,55 +1,48 @@
 package main
+
 import (
+	"encoding/json"
 	"fmt"
 	"log"
-	"os"
-	"encoding/json"
 	"net/http"
+	"os"
+	"strings"
+	//"io/ioutil"
 
 	"github.com/gorilla/mux"
 )
+
 type Response struct {
-	ID uint64 `json:"ID"`
-	ResultCode	int `json:"ResultCode"`
+	ID          uint64 `json:"ID"`
+	ResultCode  int    `json:"ResultCode"`
 	Description string `json:"Description"`
 }
 
 var ID uint64
 
-func WriteResponse(res http.ResponseWriter, req *http.Request){
+func WriteResponse(res http.ResponseWriter, req *http.Request) {
 	ID++
 	resp := Response{
-	ID : ID,
-	ResultCode: 200,
-	Description: "ok",
+		ID:          ID,
+		ResultCode:  200,
+		Description: "ok",
 	}
 	json.NewEncoder(res).Encode(resp)
 	fmt.Println("HIT WriteResponse")
 }
 
-func TestDeploy(res http.ResponseWriter, req *http.Request){
+func TestDeploy(res http.ResponseWriter, req *http.Request) {
 	ID++
 	resp := Response{
-		ID : ID,
-		ResultCode: 200,
+		ID:          ID,
+		ResultCode:  200,
 		Description: "ok test deploy",
-		}
+	}
 	json.NewEncoder(res).Encode(resp)
 	fmt.Println("TestDeploy")
 }
 
-func TestDeploy2(res http.ResponseWriter, req *http.Request){
-	ID++
-	resp := Response{
-		ID : ID,
-		ResultCode: 200,
-		Description: "ok test deploy2",
-		}
-	json.NewEncoder(res).Encode(resp)
-	fmt.Println("TestDeploy")
-}
-
-func homePage(res http.ResponseWriter, req *http.Request){
+func homePage(res http.ResponseWriter, req *http.Request) {
 	fmt.Println("-------------------------------------------------------------------")
 	fmt.Fprintf(res, "endpint:")
 	fmt.Println("method    :", req.Method)
@@ -73,112 +66,253 @@ func homePage(res http.ResponseWriter, req *http.Request){
 	fmt.Println("Cancel    :", req.Cancel)
 }
 
-func ListProcess(res http.ResponseWriter, req *http.Request){
-	//fmt.Fprintf("Listprocess")
-	//fmt.Fprintf(processListResponseSuccess)
-	//fmt.Println(processListResponseSuccess)
+func ListProcess(res http.ResponseWriter, req *http.Request) {
 	tmp := processListResponseSuccess
-	fmt.Println(tmp)
 	json.NewEncoder(res).Encode(tmp)
 }
 
-func testListProcess(res http.ResponseWriter, req *http.Request){
+func testListProcess(res http.ResponseWriter, req *http.Request) {
+	fmt.Println(req.FormValue("name"))
 	resp := Response{
-		ID : ID,
-		ResultCode: 200,
+		ID:          ID,
+		ResultCode:  200,
 		Description: "ok test deploy",
-		}
-	//json.NewEncoder(res).Encode(processListResponseSuccess)
+	}
 	json.NewEncoder(res).Encode(resp)
+}
+
+type Variables struct {
+	Name      string `json:"Name"`
+	LeaveType string `json:"LeaveType"`
+	From      string `json:"From"`
+	To        string `json:"To"`
+	LeaveDesc string `json:"LeaveDesc"`
+}
+
+type Process struct {
+	ProcessDefinitionKey string    `json:"processDefinitionKey"`
+	Initiator            string    `json:"initiator"`
+	Variables            Variables `json:"variables"`
+}
+
+func Processes(res http.ResponseWriter, req *http.Request) {
+	fmt.Println(req.Body)
+	switch req.Method {
+	case "GET":
+		if req.FormValue("initiator") != "" {
+			response := ProcessResponse{
+				ResultCode:        "20000",
+				ResultDescription: "success",
+				Data: DataResponse{
+					ID:                   "P001",
+					Ended:                false,
+					ProcessDefinitionKey: "leave",
+					Variables: Variables{
+						Name:      req.FormValue("initiator"),
+						LeaveType: "sick",
+						From:      "2019-06-03T17:26:59.344Z",
+						To:        "2019-06-03T17:26:59.344Z",
+						LeaveDesc: "Asc",
+					},
+					Completed: "false",
+				},
+			}
+			json.NewEncoder(res).Encode(response)
+			return
+		}
+		var reqJSON Process
+		decoder := json.NewDecoder(req.Body)
+		decoder.Decode(&reqJSON)
+		response := ProcessResponse{
+			ResultCode:        "20000",
+			ResultDescription: "success",
+			Data: DataResponse{
+				ID:                   "5001",
+				Ended:                false,
+				ProcessDefinitionKey: reqJSON.ProcessDefinitionKey,
+				Variables:            reqJSON.Variables,
+				Name:                 "",
+				Completed:            "false",
+				Initiator:            reqJSON.Initiator,
+			},
+		}
+		json.NewEncoder(res).Encode(response)
+	case "DELETE":
+		response := SimpleResponse{
+			ResultCode: "20000",
+		}
+		//mux.Vars(req)
+		if req.FormValue("processInstanceId") != "" {
+			response.ResultDescription = "success"
+		} else {
+			response.ResultDescription = "success"
+
+		}
+		json.NewEncoder(res).Encode(response)
+		return
+	default:
+	}
+
+}
+
+type ApproveOrReject struct {
+	Action string `json:"action"`
+	//Assignee string `json:"assignee"`
+}
+
+func Tasks(res http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case "GET":
+		if req.FormValue("involvedUser") != "" {
+			response := TaskResponse{
+				ResultCode:        "20000",
+				ResultDescription: "success",
+				Data: DataTaskResponse{
+					ID:         "T001",
+					Assignee:   req.FormValue("involvedUser"),
+					CreateTime: "2019-06-03T10:26:05.407Z",
+					DueDate:    "",
+				},
+			}
+			json.NewEncoder(res).Encode(response)
+			return
+		}
+	case "PUT":
+		fmt.Println("active", req.FormValue("active"))
+		fmt.Println("includeProcessVariables", req.FormValue("includeProcessVariables"))
+		fmt.Println("processInstanceId", req.FormValue("processInstanceId"))
+		if req.FormValue("active") != "" && req.FormValue("includeProcessVariables") != "" && req.FormValue("processInstanceId") != "" {
+			var reqJSON ApproveOrReject
+			decoder := json.NewDecoder(req.Body)
+			decoder.Decode(&reqJSON)
+			fmt.Println("reqJson:", reqJSON)
+			response := SimpleResponse{
+				ResultCode: "20000",
+			}
+			if strings.EqualFold(reqJSON.Action, "Approve") {
+				response.ResultDescription = "Approve Success"
+			} else if strings.EqualFold(reqJSON.Action, "Reject") {
+				response.ResultDescription = "Reject Success"
+			}
+			json.NewEncoder(res).Encode(response)
+			return
+		}
+	default:
+		response := `{"resultCode":"50000","resultDescription":"error"}`
+		json.NewEncoder(res).Encode(response)
+	}
+}
+
+func Test2(res http.ResponseWriter, req *http.Request) {
+	var a Variables
+	decoder := json.NewDecoder(req.Body)
+	decoder.Decode(&a)
+	fmt.Println(a)
 }
 
 func handleRequest() {
 	router := mux.NewRouter()
-
 	router.HandleFunc("/", homePage).Methods("GET")
-	router.HandleFunc("/WriteResponse", WriteResponse).Methods("GET")
-	router.HandleFunc("/testDeploy", TestDeploy).Methods("GET")
-	router.HandleFunc("/testDeploy2", TestDeploy2).Methods("GET")
-	router.HandleFunc("/v1/api/processes", ListProcess).Methods("GET")
-	router.HandleFunc("/processes", testListProcess).Methods("GET")
+	router.HandleFunc("/v1/api/processes", Processes).Methods("GET")
+	router.HandleFunc("/v1/api/processes/{processInstanceId}", Processes).Methods("DELETE")
+	router.HandleFunc("/v1/api/tasks", Tasks).Methods("GET")
+	router.HandleFunc("/v1/api/tasks", Tasks).Methods("PUT")
+	router.HandleFunc("/test", Processes).Methods("POST")
+	router.HandleFunc("/test2", Test2).Methods("POST")
+
 	fmt.Println("start")
 	port := os.Getenv("PORT")
-	if port == ""{
+	if port == "" {
 		port = "8081"
 	}
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
 type DataResponse struct {
-	ID						string 			`json:"id"`
-	Url						string 			`json:"url"`
-	BusinessKey				string 			`json:"businessKey"`
-	Suspended				bool 			`json:"suspended"`
-	Ended					bool 			`json:"ended"`
-	ProcessDefinitionId		string			`json:"processDefinitionId"`
-	ProcessDefinitionUrl	string			`json:"processDefinitionUrl"`
-	ProcessDefinitionKey	string			`json:"processDefinitionKey"`
-	ActivityId				string			`json:"activityId"`
-	//variables must be object
-	Variables				string 			`json:"variables"`
-	TenantId				string			`json:"tenantId"`
-	Name					string			`json:"name"`
-	ActiveActivity			[]string		`json:"activeActivity"`
-	Completed				string			`json:"completed"`
+	ID                   string    `json:"id"`
+	Url                  string    `json:"url"`
+	BusinessKey          string    `json:"businessKey"`
+	Suspended            bool      `json:"suspended"`
+	Ended                bool      `json:"ended"`
+	ProcessDefinitionId  string    `json:"processDefinitionId"`
+	ProcessDefinitionUrl string    `json:"processDefinitionUrl"`
+	ProcessDefinitionKey string    `json:"processDefinitionKey"`
+	ActivityId           string    `json:"activityId"`
+	Variables            Variables `json:"variables"`
+	TenantId             string    `json:"tenantId"`
+	Name                 string    `json:"name"`
+	ActiveActivity       []string  `json:"activeActivity"`
+	Completed            string    `json:"completed"`
+	Initiator            string    `json:"initiator"`
 }
 
 type ProcessResponse struct {
-	ResultCode			string			`json:"resultCode"`
-	ResultDescription	string			`json:"resultDescription"`
-	DevelopMessage		string			`json:"delelopMessage"`
-	Data				DataResponse	`json:"data"`
-	Start				int				`json:"start"`
-	Size				int				`json:"size"`
-	Sort				string			`json:"sort"`
-	Order				string			`json:"order"`
-	Total				int				`json:"total"`
+	ResultCode        string       `json:"resultCode"`
+	ResultDescription string       `json:"resultDescription"`
+	DevelopMessage    string       `json:"delelopMessage"`
+	Data              DataResponse `json:"data"`
+	Start             int          `json:"start"`
+	Size              int          `json:"size"`
+	Sort              string       `json:"sort"`
+	Order             string       `json:"order"`
+	Total             int          `json:"total"`
 }
 
-func V1ApiProcesses(res http.ResponseWriter, req *http.Request) {
-	
+type DataTaskResponse struct {
+	ID         string    `json:"id"`
+	Assignee   string    `json:"assignee"`
+	Name       string    `json:"name"`
+	CreateTime string    `json:"createTime"`
+	DueDate    string    `json:"dueDate"`
+	Variables  Variables `json:"variables"`
 }
 
-func main(){
-	// handle http request
+type TaskResponse struct {
+	ResultCode        string           `json:"resultCode"`
+	ResultDescription string           `json:"resultDescription"`
+	Data              DataTaskResponse `json:"data"`
+}
+
+type SimpleResponse struct {
+	ResultCode        string `json:"resultCode"`
+	ResultDescription string `json:"resultDescription"`
+}
+
+func main() {
 	handleRequest()
 }
 
 var (
 	testData = DataResponse{
-		ID:						"2501",
-		Url:					"null",
-		BusinessKey:			"null",
-		Suspended:				false,
-		Ended:					false,
-		ProcessDefinitionId: 	"sampleProcess:1:4",
-		ProcessDefinitionUrl: 	"null",
-		ProcessDefinitionKey: 	"sampleProcess",
-		ActivityId:				"null",
-		Variables:				"null object",
-		TenantId:				"",
-		Name:					"null",
-		Completed:				"false",
+		ID:                   "2501",
+		Url:                  "null",
+		BusinessKey:          "null",
+		Suspended:            false,
+		Ended:                false,
+		ProcessDefinitionId:  "sampleProcess:1:4",
+		ProcessDefinitionUrl: "null",
+		ProcessDefinitionKey: "sampleProcess",
+		ActivityId:           "null",
+		Variables:            Variables{},
+		TenantId:             "",
+		Name:                 "null",
+		Completed:            "false",
 	}
 
 	processListResponseSuccess = ProcessResponse{
-		ResultCode: 			"20000",
-		ResultDescription:		"success",
-		Data:					testData,
-		Start:					0,
-		Size:					1,
-		Sort:					"id",
-		Order:					"asc",
-		Total:					1,
+		ResultCode:        "20000",
+		ResultDescription: "success",
+		Data:              testData,
+		Start:             0,
+		Size:              1,
+		Sort:              "id",
+		Order:             "asc",
+		Total:             1,
 	}
 
 	processListResponseError = ProcessResponse{
-		ResultCode:				"50000",
-		ResultDescription:		"System error",
-		Data:					DataResponse{},
+		ResultCode:        "50000",
+		ResultDescription: "System error",
+		Data:              DataResponse{},
 	}
 )

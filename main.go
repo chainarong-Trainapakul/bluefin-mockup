@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
 	//"io/ioutil"
 
 	"github.com/gorilla/mux"
@@ -172,6 +173,7 @@ func Tasks(res http.ResponseWriter, req *http.Request) {
 					Assignee:   req.FormValue("involvedUser"),
 					CreateTime: "2019-06-03T10:26:05.407Z",
 					DueDate:    "",
+					Name:       "leaveapproveform",
 				},
 			}
 			json.NewEncoder(res).Encode(response)
@@ -203,7 +205,7 @@ func Tasks(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func Test2(res http.ResponseWriter, req *http.Request) {
+func Test(res http.ResponseWriter, req *http.Request) {
 	var a Variables
 	decoder := json.NewDecoder(req.Body)
 	decoder.Decode(&a)
@@ -217,8 +219,7 @@ func handleRequest() {
 	router.HandleFunc("/v1/api/processes/{processInstanceId}", Processes).Methods("DELETE")
 	router.HandleFunc("/v1/api/tasks", Tasks).Methods("GET")
 	router.HandleFunc("/v1/api/tasks", Tasks).Methods("PUT")
-	router.HandleFunc("/test", Processes).Methods("POST")
-	router.HandleFunc("/test2", Test2).Methods("POST")
+	router.HandleFunc("/test", Test).Methods("GET")
 
 	fmt.Println("start")
 	port := os.Getenv("PORT")

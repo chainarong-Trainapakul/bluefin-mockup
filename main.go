@@ -100,24 +100,54 @@ func Processes(res http.ResponseWriter, req *http.Request) {
 	fmt.Println(req.Body)
 	switch req.Method {
 	case "GET":
-		if req.FormValue("initiator") != "" {
+		if req.FormValue("initiator") != "" { 
 			response := ProcessResponse{
 				ResultCode:        "20000",
 				ResultDescription: "success",
-				Data: DataResponse{
-					ID:                   "P001",
-					Ended:                false,
-					ProcessDefinitionKey: "leave",
-					Variables: Variables{
-						Name:      req.FormValue("initiator"),
-						LeaveType: "sick",
-						From:      "2019-06-03T17:26:59.344Z",
-						To:        "2019-06-03T17:26:59.344Z",
-						LeaveDesc: "Asc",
+				Data: []DataResponse{
+					DataResponse{
+						ID:                   "P001",
+						Ended:                false,
+						ProcessDefinitionKey: "leave",
+						Variables: Variables{
+							Name:      req.FormValue("initiator"),
+							LeaveType: "sick",
+							From:      "2019-06-03T17:26:59.344Z",
+							To:        "2019-06-03T17:26:59.344Z",
+							LeaveDesc: "Asc",
+						},
+						Completed: "false",
 					},
-					Completed: "false",
+					DataResponse{
+						ID:                   "P002",
+						Ended:                false,
+						ProcessDefinitionKey: "leave",
+						Variables: Variables{
+							Name:      req.FormValue("initiator"),
+							LeaveType: "vacation",
+							From:      "2019-06-03T17:26:59.344Z",
+							To:        "2019-06-03T17:26:59.344Z",
+							LeaveDesc: "Desc",
+						},
+						Completed: "false",
+					},
+					DataResponse{
+						ID:                   "P003",
+						Ended:                true,
+						ProcessDefinitionKey: "leave",
+						Variables: Variables{
+							Name:      req.FormValue("initiator"),
+							LeaveType: "vacation",
+							From:      "2019-06-03T17:26:59.346Z",
+							To:        "2019-06-03T17:26:59.346Z",
+							LeaveDesc: "Desc",
+						},
+						Completed: "true",
+					},
+					
 				},
 			}
+			
 			json.NewEncoder(res).Encode(response)
 			return
 		}
@@ -127,14 +157,16 @@ func Processes(res http.ResponseWriter, req *http.Request) {
 		response := ProcessResponse{
 			ResultCode:        "20000",
 			ResultDescription: "success",
-			Data: DataResponse{
-				ID:                   "5001",
-				Ended:                false,
-				ProcessDefinitionKey: reqJSON.ProcessDefinitionKey,
-				Variables:            reqJSON.Variables,
-				Name:                 "",
-				Completed:            "false",
-				Initiator:            reqJSON.Initiator,
+			Data: []DataResponse{
+				DataResponse{
+					ID:                   "5001",
+					Ended:                false,
+					ProcessDefinitionKey: reqJSON.ProcessDefinitionKey,
+					Variables:            reqJSON.Variables,
+					Name:                 "",
+					Completed:            "false",
+					Initiator:            reqJSON.Initiator,
+				},
 			},
 		}
 		json.NewEncoder(res).Encode(response)
@@ -251,7 +283,7 @@ type ProcessResponse struct {
 	ResultCode        string       `json:"resultCode"`
 	ResultDescription string       `json:"resultDescription"`
 	DevelopMessage    string       `json:"delelopMessage"`
-	Data              DataResponse `json:"data"`
+	Data              []DataResponse `json:"data"`
 	Start             int          `json:"start"`
 	Size              int          `json:"size"`
 	Sort              string       `json:"sort"`
@@ -284,20 +316,22 @@ func main() {
 }
 
 var (
-	testData = DataResponse{
-		ID:                   "2501",
-		Url:                  "null",
-		BusinessKey:          "null",
-		Suspended:            false,
-		Ended:                false,
-		ProcessDefinitionId:  "sampleProcess:1:4",
-		ProcessDefinitionUrl: "null",
-		ProcessDefinitionKey: "sampleProcess",
-		ActivityId:           "null",
-		Variables:            Variables{},
-		TenantId:             "",
-		Name:                 "null",
-		Completed:            "false",
+	testData = []DataResponse{
+		DataResponse{
+			ID:                   "2501",
+			Url:                  "null",
+			BusinessKey:          "null",
+			Suspended:            false,
+			Ended:                false,
+			ProcessDefinitionId:  "sampleProcess:1:4",
+			ProcessDefinitionUrl: "null",
+			ProcessDefinitionKey: "sampleProcess",
+			ActivityId:           "null",
+			Variables:            Variables{},
+			TenantId:             "",
+			Name:                 "null",
+			Completed:            "false",
+		},
 	}
 
 	processListResponseSuccess = ProcessResponse{
@@ -314,6 +348,6 @@ var (
 	processListResponseError = ProcessResponse{
 		ResultCode:        "50000",
 		ResultDescription: "System error",
-		Data:              DataResponse{},
+		Data:              []DataResponse{},
 	}
 )

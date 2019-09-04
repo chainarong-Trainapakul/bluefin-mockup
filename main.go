@@ -202,6 +202,7 @@ type ApproveOrReject struct {
 func Tasks(res http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
+		fmt.Println("req: ", req)
 		if req.FormValue("involvedUser") != "" {
 			response := TaskResponse{
 				ResultCode:        "20000",

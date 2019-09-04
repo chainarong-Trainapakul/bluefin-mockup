@@ -88,12 +88,18 @@ type Variables struct {
 	From      string `json:"From"`
 	To        string `json:"To"`
 	LeaveDesc string `json:"LeaveDesc"`
+	Field	  []Field	 `json:"Field"`
 }
 
 type Process struct {
 	ProcessDefinitionKey string    `json:"processDefinitionKey"`
 	Initiator            string    `json:"initiator"`
 	Variables            Variables `json:"variables"`
+}
+type Field struct {
+	FieldName	string		`json:"fieldName"`
+	SelectType	string		`json:"selectType"`
+	Value		string		`json:"value"`
 }
 
 func Processes(res http.ResponseWriter, req *http.Request) {
@@ -206,6 +212,30 @@ func Tasks(res http.ResponseWriter, req *http.Request) {
 					CreateTime: "2019-06-03T10:26:05.407Z",
 					DueDate:    "",
 					Name:       "leaveapproveform",
+					Variables:	Variables{
+						Field:	[]Field{
+							Field{	
+								FieldName:	"name",
+								SelectType:	"text",
+								Value:		"Employee_A",
+							},
+							Field{
+								FieldName:	"lastname",
+								SelectType:	"text",
+								Value:		"lastnameE",
+							},
+							Field{
+								FieldName:	"email",
+								SelectType:	"text",
+								Value:		"employee@gmail.com",
+							},
+							Field{
+								FieldName:	"phone",
+								SelectType:	"number",
+								Value:		"0855555555",
+							},
+						},
+					},
 				},
 			}
 			json.NewEncoder(res).Encode(response)
